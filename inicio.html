@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestión de Adopciones</h1>
+        <nav>
+        <button onclick="location.href='inicio.html'">Inicio</button>
+        <button onclick="location.href='agregar-aviso.html'">Agregar aviso</button>
+        <button onclick="location.href='listado.html'">Listado</button>
+        <button onclick="location.href='estadisticas.html'">Estadísticas</button>
+        </nav>
+    </header>
+    <main id="content" class="container">
+        <section id="home" class="card">
+            <h2>Bienvenid@ 👋</h2>
+            <div class="notice-list" id="homeLatest">
+            </div>
+        </section>
+    </main>
+
+
+    <script src="js/app.js"></script>
+    <script src="js/region_comuna.js"></script>
+    <script>renderHomeLatest();</script>
+</body>
+</html>

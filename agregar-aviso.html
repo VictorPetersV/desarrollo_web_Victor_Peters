@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Aviso</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Adopciones</h1>
+    <nav>
+      <button onclick="location.href='inicio.html'">Inicio</button>
+      <button onclick="location.href='agregar-aviso.html'">Agregar aviso</button>
+      <button onclick="location.href='listado.html'">Listado</button>
+      <button onclick="location.href='estadisticas.html'">Estadísticas</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Agregar aviso de adopción</h2>
+      <form id="adoptForm" novalidate onsubmit="return false">
+        <!-- Dónde -->
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend><strong>¿Dónde?</strong></legend>
+          <div class="row" style="margin-bottom:12px">
+            <div class="col">
+              <label for="region">Región</label>
+              <select id="region" name="region"></select>
+              <div id="error-region" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="comuna">Comuna</label>
+              <select id="comuna" name="comuna"></select>
+              <div id="error-comuna" class="error"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:12px">
+            <label for="sector">Sector (max 100)</label>
+            <input id="sector" type="text" maxlength="100" />
+            <div id="error-sector" class="error"></div>
+          </div>
+        </fieldset>
+
+        <!-- Contacto -->
+        <fieldset style="border:0;padding:0;margin-top:10px">
+          <legend><strong>Contacto</strong></legend>
+          <div class="row" style="margin-bottom:12px">
+            <div class="col">
+              <label for="contactName">Nombre</label>
+              <input id="contactName" type="text" />
+              <div id="error-contactName" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="contactEmail">Email</label>
+              <input id="contactEmail" type="email" maxlength="100" />
+              <div id="error-contactEmail" class="error"></div>
+            </div>
+          </div>
+          <div class="row" style="margin-bottom:12px">
+            <div class="col">
+              <label for="contactPhone">Número de celular (Formato: +56912345678)</label>
+              <input id="contactPhone" type="tel" />
+              <div id="error-contactPhone" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="contactChannel">Contactar por</label>
+              <select id="contactChannel">
+                <option value="">--Seleccione--</option>
+                <option>whatsapp</option>
+                <option>telegram</option>
+                <option>X</option>
+                <option>instagram</option>
+                <option>tiktok</option>
+                <option>otra</option>
+              </select>
+              <div id="error-contactChannel" class="error"></div>
+            </div>
+          </div>
+          <div id="channelInfoWrap" style="display:none;margin-bottom:12px">
+            <label for="channelInfo">ID o URL de red social seleccionada</label>
+            <input id="channelInfo" type="text" minlength="4" maxlength="50" />
+            <div id="error-channelInfo" class="error"></div>
+          </div>
+        </fieldset>
+
+        <!-- Mascota -->
+        <fieldset style="border:0;padding:0;margin-top:10px">
+          <legend><strong>Información de la mascota</strong></legend>
+          <div class="row" style="margin-bottom:12px">
+            <div class="col">
+              <label for="petType">Tipo</label>
+              <select id="petType">
+                <option value="">--Seleccione--</option>
+                <option value="gato">Gato</option>
+                <option value="perro">Perro</option>
+              </select>
+              <div id="error-petType" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="petCount">Cantidad</label>
+              <input id="petCount" type="number" min="1" />
+              <div id="error-petCount" class="error"></div>
+            </div>
+          </div>
+          <div class="row" style="margin-bottom:12px">
+            <div class="col">
+              <label for="petAge">Edad (número)</label>
+              <input id="petAge" type="number" min="1" />
+              <div id="error-petAge" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="petAgeUnit">Unidad de edad</label>
+              <select id="petAgeUnit">
+                <option value="">--Seleccione--</option>
+                <option value="meses">meses</option>
+                <option value="años">años</option>
+              </select>
+              <div id="error-petAgeUnit" class="error"></div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <label for="availableDate">Fecha disponible para entrega</label>
+            <input id="availableDate" type="datetime-local" />
+            <div id="error-availableDate" class="error"></div>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <label for="description">Descripción (opcional)</label>
+            <textarea id="description" cols="50" rows="4"></textarea>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <label>Fotos (mínimo 1, máximo 5)</label>
+            <div id="photoInputs">
+              <input type="file" accept="image/*" class="photoInput" />
+            </div>
+            <div style="margin-top:8px">
+              <button type="button" class="btn btn-ghost small" id="addPhotoBtn">Agregar otra foto</button>
+            </div>
+            <div id="error-photos" class="error"></div>
+          </div>
+        </fieldset>
+
+        <div style="margin-top:12px">
+          <button id="submitBtn" class="btn btn-primary">Agregar este aviso de adopción</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/region_comuna.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Inicialización
+    populateRegions();
+    prefillDate();
+    setupContactChannel();
+    setupPhotoInputs();
+
+    // Validación y confirmación
+    document.getElementById("submitBtn").addEventListener("click", ()=>{
+      if (!validateForm()) {
+        window.scrollTo({top:0, behavior:'smooth'});
+        return;
+      }
+
+      // Mostrar modal de confirmación
+      showOverlay(`
+        <div class="modal card" style="padding:20px; background:white; max-width:400px; text-align:center;">
+          <p>¿Está seguro que desea agregar este aviso de adopción?</p>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+            <button id="confirmYes" class="btn btn-primary">Sí, estoy seguro</button>
+            <button id="confirmNo" class="btn btn-ghost">No, volver</button>
+          </div>
+        </div>
+      `, true);
+
+      document.getElementById("confirmYes").addEventListener("click", ()=>{
+        hideOverlay();
+        showOverlay(`
+          <div class="modal card" style="padding:20px; background:white; max-width:400px; text-align:center;">
+            <p>✅ Hemos recibido la información de adopción, muchas gracias y suerte!</p>
+            <div style="margin-top:15px;">
+              <button id="backHome" class="btn btn-primary">Volver a inicio</button>
+            </div>
+          </div>
+        `, true);
+
+        document.getElementById("backHome").addEventListener("click", ()=>{
+          hideOverlay();
+          location.href = "inicio.html";
+        });
+      });
+
+      document.getElementById("confirmNo").addEventListener("click", ()=>{
+        hideOverlay();
+      });
+    });
+  </script>
+</body>
+</html>
