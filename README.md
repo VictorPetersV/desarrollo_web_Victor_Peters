@@ -8,22 +8,31 @@ Fue desarrollado utilizando HTML5, CSS y JavaScript.
 ## Estructura del proyecto
 
 ```
-prototipo-adopciones/
+
+desarrollo_web_Victor_Peters/
 │
-├── inicio.html             ← Página principal (portada)
-├── agregar-aviso.html      ← Formulario para agregar un aviso
-├── listado.html            ← Listado de todos los avisos
-├── detalle.html            ← Vista de detalle de un aviso
-├── estadisticas.html       ← Gráficas con datos de ejemplo
+├── app.py                        ← Archivo principal de Flask
 │
-├── css/
-│   └── style.css           ← Estilos del proyecto
+├── static/                       ← Carpeta para archivos estáticos
+│   ├── css/
+│   │   └── style.css             ← Estilos del proyecto
+│   ├── js/
+│   │   ├── app.js                ← Lógica principal en JavaScript
+│   │   └── region_comuna.js      ← Datos de regiones y comunas
+│   └── uploads/                  ← Aquí se guardan las fotos subidas
 │
-├── js/
-│   ├── app.js              ← Lógica principal en JavaScript
-│   └── region_comuna.js    ← Datos de regiones y comunas
+├── templates/                    ← Plantillas HTML renderizadas por Flask
+│   ├── inicio.html               ← Página principal (portada)
+│   ├── agregar-aviso.html        ← Formulario para agregar un aviso
+│   ├── listado.html              ← Listado de todos los avisos
+│   ├── detalle.html              ← Vista de detalle de un aviso
+│   ├── estadisticas.html         ← Gráficas con datos de ejemplo
+│   └── navbar.html               ← menú de navegación incluido en todas
 │
-└── README.md               ← Este archivo
+├──requirements.txt               ← Archivo con las versiones de cada herramienta utilizada
+│
+└── README.md                     ← Este archivo
+
 ```
 
 ---
@@ -38,6 +47,7 @@ prototipo-adopciones/
   - Formulario con validaciones en JavaScript.
   - Se pueden subir entre 1 y 5 fotos.
   - Antes de confirmar se muestra un cuadro de confirmación.
+  - Las imagenes subidas son almacenadas en static/uploads
 
 - **Listado (`listado.html`)**
   - Tabla con todos los avisos.
@@ -58,7 +68,8 @@ prototipo-adopciones/
 - HTML5
 - CSS3
 - JavaScript
-
+- Flask
+- Jinja2
 ---
 
 ## Instalación y uso

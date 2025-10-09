@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle de Aviso</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Detalle del Aviso</h1>
+    {% include 'navbar.html' %}
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>{{ aviso.tipo|capitalize }} ({{ aviso.cantidad }})</h2>
+      <p><strong>Edad:</strong> {{ aviso.edad }} {{ 'meses' if aviso.unidad_medida == 'm' else 'años' }}</p>
+      <p><strong>Comuna:</strong> {{ aviso.comuna }}</p>
+      <p><strong>Región:</strong> {{ aviso.region }}</p>
+      <p><strong>Sector:</strong> {{ aviso.sector or 'No especificado' }}</p>
+      <p><strong>Descripción:</strong> {{ aviso.descripcion or 'Sin descripción' }}</p>
+      <p><strong>Fecha disponible:</strong> {{ aviso.fecha_entrega.strftime('%d/%m/%Y %H:%M') }}</p>
+      <p><strong>Contacto:</strong> {{ aviso.nombre }} — {{ aviso.email }} {{ aviso.celular or '' }}</p>
+
+      {% if contactos %}
+        <p><strong>Medios de contacto:</strong></p>
+        <ul>
+          {% for c in contactos %}
+            <li>{{ c.nombre }}: {{ c.identificador }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if fotos %}
+        <h3>Fotos</h3>
+        <div class="photo-grid">
+          {% for f in fotos %}
+            <img src="{{ url_for('static', filename=f.ruta_archivo.split('static/')[1]) }}" alt="{{ f.nombre_archivo }}" width="200">
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No hay fotos disponibles.</p>
+      {% endif %}
+
+      <div style="margin-top:20px;">
+        <a href="{{ url_for('listado') }}" class="btn btn-primary">Volver al listado</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

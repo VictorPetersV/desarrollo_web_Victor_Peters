@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
   <header>
     <h1>Gestión de Adopciones</h1>
-    <nav>
-      <button onclick="location.href='inicio.html'">Inicio</button>
-      <button onclick="location.href='agregar-aviso.html'">Agregar aviso</button>
-      <button onclick="location.href='listado.html'">Listado</button>
-      <button onclick="location.href='estadisticas.html'">Estadísticas</button>
-    </nav>
+    {% include 'navbar.html' %}
   </header>
 
   <main class="container">
@@ -39,7 +34,7 @@
     </section>
   </main>
 
-  <script src="js/app.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   <script>
     // Ajusta los canvas al tamaño de su contenedor
     function resizeCanvasToDisplaySize(canvas) {

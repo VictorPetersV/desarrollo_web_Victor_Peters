@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Aviso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Adopciones</h1>
+    {% include 'navbar.html' %}
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Agregar aviso de adopción</h2>
+
+      <form id="adoptForm" method="POST" action="{{ url_for('agregar_aviso') }}" enctype="multipart/form-data" novalidate>
+        <!-- Donde -->
+        <fieldset>
+          <legend><strong>¿Dónde?</strong></legend>
+          <div class="row">
+            <div class="col">
+              <label for="region">Región</label>
+              <select id="region" name="region" required>
+                <option value="">--Seleccione--</option>
+                {% for r in regiones %}
+                  <option value="{{ r.id }}">{{ r.nombre }}</option>
+                {% endfor %}
+              </select>
+              <div id="error-region" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="comuna">Comuna</label>
+              <select id="comuna" name="comuna" required></select>
+              <div id="error-comuna" class="error"></div>
+            </div>
+          </div>
+          <div>
+            <label for="sector">Sector (max 100)</label>
+            <input id="sector" name="sector" type="text" maxlength="100">
+            <div id="error-sector" class="error"></div>
+          </div>
+        </fieldset>
+
+        <!-- Contacto -->
+        <fieldset>
+          <legend><strong>Contacto</strong></legend>
+          <div class="row">
+            <div class="col">
+              <label for="contactName">Nombre</label>
+              <input id="contactName" name="contactName" type="text" required>
+              <div id="error-contactName" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="contactEmail">Email</label>
+              <input id="contactEmail" name="contactEmail" type="email" required>
+              <div id="error-contactEmail" class="error"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label for="contactPhone">Celular (+56912345678)</label>
+              <input id="contactPhone" name="contactPhone" type="tel">
+              <div id="error-contactPhone" class="error"></div>
+            </div>
+            <div class="col">
+              <label for="contactChannel">Contactar por</label>
+              <select id="contactChannel" name="contactChannel">
+                <option value="">--Seleccione--</option>
+                <option value="whatsapp">whatsapp</option>
+                <option value="telegram">telegram</option>
+                <option value="X">X</option>
+                <option value="instagram">instagram</option>
+                <option value="tiktok">tiktok</option>
+                <option value="otra">otra</option>
+              </select>
+            </div>
+          </div>
+          <div id="channelInfoWrap" style="display:none;">
+            <label for="channelInfo">ID o URL de contacto</label>
+            <input id="channelInfo" name="channelInfo" type="text">
+          </div>
+        </fieldset>
+
+        <!-- Mascota -->
+        <fieldset>
+          <legend><strong>Información de la mascota</strong></legend>
+          <div class="row">
+            <div class="col">
+              <label for="petType">Tipo</label>
+              <select id="petType" name="petType" required>
+                <option value="">--Seleccione--</option>
+                <option value="gato">Gato</option>
+                <option value="perro">Perro</option>
+              </select>
+            </div>
+            <div class="col">
+              <label for="petCount">Cantidad</label>
+              <input id="petCount" name="petCount" type="number" min="1" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label for="petAge">Edad</label>
+              <input id="petAge" name="petAge" type="number" min="1" required>
+            </div>
+            <div class="col">
+              <label for="petAgeUnit">Unidad</label>
+              <select id="petAgeUnit" name="petAgeUnit" required>
+                <option value="">--Seleccione--</option>
+                <option value="m">meses</option>
+                <option value="a">años</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="availableDate">Fecha disponible</label>
+          <input id="availableDate" name="availableDate" type="datetime-local" required>
+
+          <label for="description">Descripción</label>
+          <textarea id="description" name="description" rows="4"></textarea>
+
+          <label>Fotos (1 a 5)</label>
+          <div id="photoInputs">
+            <input type="file" name="photos" accept="image/*" class="photoInput" multiple>
+          </div>
+        </fieldset>
+
+        <div style="margin-top:15px;">
+          <button id="submitBtn" class="btn btn-primary">Agregar aviso</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/region_comuna.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script>
+    populateRegions();
+    prefillDate();
+    setupContactChannel();
+    setupPhotoInputs();
+
+    document.getElementById("submitBtn").addEventListener("click", (e)=>{
+      e.preventDefault();
+      if (!validateForm()) {
+        window.scrollTo({top:0, behavior:'smooth'});
+        return;
+      }
+
+      showOverlay(`
+        <div class="modal card" style="padding:20px; background:white; max-width:400px; text-align:center;">
+          <p>¿Está seguro que desea agregar este aviso?</p>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+            <button id="confirmYes" class="btn btn-primary">Sí</button>
+            <button id="confirmNo" class="btn btn-ghost">No</button>
+          </div>
+        </div>
+      `, true);
+
+      document.getElementById("confirmYes").addEventListener("click", () => {
+        hideOverlay();
+        document.getElementById("adoptForm").submit();
+      });
+
+      document.getElementById("confirmNo").addEventListener("click", hideOverlay);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listado de Avisos</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Listado de Avisos</h1>
+    {% include 'navbar.html' %}
+  </header>
+
+  <main class="container">
+    <section class="card">
+      {% if avisos %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Tipo</th>
+              <th>Edad</th>
+              <th>Cantidad</th>
+              <th>Comuna</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for aviso in avisos %}
+            <tr>
+              <td>
+                {% if aviso.foto %}
+                  <img src="{{ url_for('static', filename='uploads/' + aviso.fotos[0].ruta_archivo) }}">
+                {% else %}
+                  <img src="{{ url_for('static', filename='img/no-image.png') }}" alt="sin imagen" width="80">
+                {% endif %}
+              </td>
+              <td>{{ aviso.tipo }}</td>
+              <td>{{ aviso.edad }} {{ 'meses' if aviso.unidad_medida == 'm' else 'años' }}</td>
+              <td>{{ aviso.cantidad }}</td>
+              <td>{{ aviso.comuna }}</td>
+              <td><a href="{{ url_for('detalle', id=aviso.id) }}" class="btn btn-primary small">Ver detalle</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Paginación -->
+        <div class="pagination">
+          {% if page > 1 %}
+            <a href="{{ url_for('listado', page=page-1) }}" class="btn btn-ghost small">Anterior</a>
+          {% endif %}
+          <span>Página {{ page }} de {{ total_pages }}</span>
+          {% if page < total_pages %}
+            <a href="{{ url_for('listado', page=page+1) }}" class="btn btn-ghost small">Siguiente</a>
+          {% endif %}
+        </div>
+      {% else %}
+        <p>No hay avisos registrados.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

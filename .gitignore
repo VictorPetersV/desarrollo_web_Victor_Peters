@@ -11,3 +11,6 @@
 
    # Subidas o contenido pesado
    uploads/
+
+   # Archivos de base de datos
+   tarea2.sql

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Adopciones</h1>
+    {% include 'navbar.html' %}
+  </header>
+
+  <main class="container">
+    <section class="card">
+        <h2>Bienvenid@ 👋</h2>
+      <h2>Últimos avisos de adopción</h2>
+      {% if avisos %}
+        <div class="grid">
+          {% for aviso in avisos %}
+            <div class="notice-item">
+              <a href="{{ url_for('detalle', id=aviso.id) }}">
+                {% if aviso.foto %}
+                  <img src="{{ url_for('static', filename=aviso.foto.split('static/')[1]) }}" alt="Foto mascota">
+                {% else %}
+                  <img src="{{ url_for('static', filename='img/no-image.png') }}" alt="Sin imagen">
+                {% endif %}
+                <h3>{{ aviso.tipo|capitalize }} ({{ aviso.cantidad }})</h3>
+                <p>{{ aviso.edad }} {{ 'meses' if aviso.unidad_medida == 'm' else 'años' }}</p>
+                <p><strong>Comuna:</strong> {{ aviso.comuna }}</p>
+                <p><strong>Contacto:</strong> {{ aviso.nombre }}</p>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No hay avisos registrados aún.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

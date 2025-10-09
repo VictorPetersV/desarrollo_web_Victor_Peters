@@ -1,12 +1,3 @@
-/********** Datos de ejemplo (avisos ficticios) **********/
-const sampleNotices = [
-  {id:1,pub:'2025-08-18 12:00',ent:'2025-08-20T15:00',region:'Metropolitana',comuna:'Santiago',sector:'Beauchef 850, terraza',tipo:'gato',cantidad:1,edad:'2 meses',contact:'María',photos:["img/gato1a.jpg", "img/gato1b.jpg"],desc:'Cachorro muy cariñoso'},
-  {id:2,pub:'2025-08-17 19:00',ent:'2025-08-21T10:00',region:'Metropolitana',comuna:'Ñuñoa',sector:'Plaza',tipo:'perro',cantidad:3,edad:'2 meses',contact:'Carlos',photos:["img/perros1.jpg"],desc:'Tres hermanitos, juguetones'},
-  {id:3,pub:'2022-08-17 18:00',ent:'2022-08-20T09:00',region:'Metropolitana',comuna:'Santiago',sector:'Parque O\'higgins',tipo:'gato',cantidad:2,edad:'1 mes',contact:'Ana',photos:["img/gato2.jpg", "img/gato2a.jpg"],desc:'Rescatados del parque'},
-  {id:4,pub:'2025-08-15 09:30',ent:'2025-08-26T11:00',region:'Biobío',comuna:'Concepción',sector:'Barrio Universitario',tipo:'perro',cantidad:1,edad:'1 año',contact:'Pedro',photos:["img/perro5.jpg"],desc:'Adulto, castrado'},
-  {id:5,pub:'2025-08-10 08:10',ent:'2025-08-14T13:00',region:'Valparaíso',comuna:'Viña del Mar',sector:'Avenida',tipo:'gato',cantidad:1,edad:'6 meses',contact:'Luisa',photos:["img/gato3.jpg"],desc:'Busca hogar tranquilo'}
-];
-
 /********** Utilidad: placeholders de imágenes **********/
 function placeholderDataURL(w,h,text){
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='%23666'>${text}</text></svg>`;
@@ -54,18 +45,18 @@ function populateRegions() {
 
   region_comuna.regiones.forEach(r=>{
     const opt=document.createElement("option");
-    opt.value=r.nombre;
+    opt.value=r.numero;
     opt.textContent=r.nombre;
     regionSelect.appendChild(opt);
   });
 
   regionSelect.addEventListener("change",()=>{
     comunaSelect.innerHTML="<option value=''>--Seleccione--</option>";
-    const region=region_comuna.regiones.find(r=>r.nombre===regionSelect.value);
+    const region = region_comuna.regiones.find(r => Number(r.numero) === Number(regionSelect.value));
     if (region){
       region.comunas.forEach(c=>{
         const opt=document.createElement("option");
-        opt.value=c.nombre;
+        opt.value=c.id;
         opt.textContent=c.nombre;
         comunaSelect.appendChild(opt);
       });
@@ -284,11 +275,7 @@ function drawBar(canvas, labels, seriesA, seriesB){
     ctx.fillStyle="#333"; ctx.font="12px sans-serif"; ctx.fillText(lab,x0,H-8);
   });
 }
-function drawAllCharts(){
-  drawLine(document.getElementById("lineChart"), ["01","02","03","04","05","06","07"], [1,3,2,4,5,2,3]);
-  drawPie(document.getElementById("pieChart"), [12,8], ["Gatos","Perros"]);
-  drawBar(document.getElementById("barChart"), ["Ene","Feb","Mar","Abr"], [5,3,6,2], [3,4,2,5]);
-}
+
 
 /********************************************************
  *  OVERLAY (para confirmaciones y fotos grandes)
