@@ -32,21 +32,59 @@
         </ul>
       {% endif %}
 
-      {% if fotos %}
-        <h3>Fotos</h3>
-        <div class="photo-grid">
-          {% for f in fotos %}
-            <img src="{{ url_for('static', filename=f.ruta_archivo.split('static/')[1]) }}" alt="{{ f.nombre_archivo }}" width="200">
+      <h3>Fotos</h3>
+      <div class="photo-grid">
+        {% if aviso.fotos and aviso.fotos|length > 0 %}
+          {% for foto in aviso.fotos %}
+            <img src="{{ url_for('uploaded_file', filename=foto.ruta_archivo) }}" alt="Foto mascota" style="max-width:100%; border-radius:8px; margin-bottom:10px;">
           {% endfor %}
-        </div>
-      {% else %}
-        <p>No hay fotos disponibles.</p>
-      {% endif %}
+        {% else %}
+          <div style="background:#eee; padding:40px; text-align:center; color:#666; border-radius:8px;">Sin fotos disponibles</div>
+        {% endif %}
+      </div>
+
+
 
       <div style="margin-top:20px;">
         <a href="{{ url_for('listado') }}" class="btn btn-primary">Volver al listado</a>
       </div>
     </section>
+    <section id="comentarios">
+      <h3>Comentarios</h3>
+
+      <div id="comentarios-lista" class="comentarios-lista">
+        <p class="muted"></p>
+      </div>
+
+      <h4>Agregar un comentario</h4>
+      <form id="form-comentario">
+        <div class="row">
+          <label for="nombre-comentario">Tu nombre:</label>
+          <input id="nombre-comentario" type="text" required>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <label for="texto-comentario">Comentario:</label>
+          <textarea id="texto-comentario" rows="3" maxlength="300" required></textarea>
+        </div>
+
+        <div id="error-comentario" class="error" style="margin-top:4px;color:red;"></div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top:10px">
+          Enviar comentario
+        </button>
+      </form>
+    </section>
+
   </main>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const avisoId = {{ aviso.id }};
+      loadComentarios(avisoId);
+      setupComentarioForm(avisoId);
+    });
+  </script>
+  
 </body>
 </html>

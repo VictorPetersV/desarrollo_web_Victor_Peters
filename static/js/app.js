@@ -1,4 +1,4 @@
-/********** Utilidad: placeholders de imágenes **********/
+/********** Placeholders de imágenes **********/
 function placeholderDataURL(w,h,text){
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><rect width='100%' height='100%' fill='%23ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='%23666'>${text}</text></svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
@@ -8,24 +8,21 @@ function placeholderDataURL(w,h,text){
 /********************************************************
  *  INICIO (inicio.html)
  ********************************************************/
-function renderHomeLatest(){
+function renderHomeLatest(avisos){
   const wrap=document.getElementById("homeLatest");
-  if (!wrap) return;
+  if (!wrap || !avisos) return;
   wrap.innerHTML="";
-  sampleNotices.slice(0,5).forEach(n=>{
+  avisos.slice(0,5).forEach(n=>{
     const div=document.createElement("div");
     div.className="notice";
-
-    // Usa la primera imagen, o un placeholder si no hay
-    const imgSrc = n.photos && n.photos.length > 0 
-      ? n.photos[0] 
+    const imgSrc = n.fotos && n.fotos.length > 0 
+      ? `/uploads/${n.fotos[0].ruta_archivo}`
       : placeholderDataURL(400,240, n.tipo);
-
     div.innerHTML = `
-      <div class='meta'><strong>${n.pub}</strong> • ${n.region} • ${n.comuna}</div>
-      <div style='margin-top:6px;'>${n.sector}</div>
-      <div class='muted' style='margin-top:6px;'>${n.cantidad} ${n.tipo} • ${n.edad}</div>
-      <img src='${imgSrc}' alt='foto principal' style='max-width:100%; margin-top:8px;'>
+      <div class='meta'><strong>${n.fecha_ingreso}</strong> • ${n.region} • ${n.comuna}</div>
+      <div>${n.sector || ""}</div>
+      <div class='muted'>${n.cantidad} ${n.tipo} • ${n.edad} ${n.unidad_medida}</div>
+      <img src='${imgSrc}' alt='foto principal'>
     `;
     wrap.appendChild(div);
   });
@@ -158,58 +155,39 @@ function validateForm(){
 /********************************************************
  *  LISTADO (listado.html)
  ********************************************************/
-function renderList(){
-  const tbody=document.getElementById("listBody");
-  if (!tbody) return;
-  tbody.innerHTML="";
-  sampleNotices.forEach(n=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML = `
-      <td>${n.pub}</td>
-      <td>${n.ent.replace("T"," ")}</td>
-      <td>${n.comuna}</td>
-      <td>${n.sector}</td>
-      <td>${n.cantidad} ${n.tipo} • ${n.edad}</td>
-      <td>${n.contact}</td>
-      <td>${n.photos ? n.photos.length : 0}</td>
-    `;
-    tr.style.cursor="pointer";
-    tr.addEventListener("click",()=>{
-      location.href="detalle.html?id="+n.id;
-    });
-    tbody.appendChild(tr);
-  });
+function showDetail(id) {
+  fetch(`/api/avisos/${id}`)
+    .then(r => r.json())
+    .then(n => {
+      const cont = document.getElementById("detailContent");
+      if (!cont || !n) return;
+      let photosHtml = '<div class="photo-grid">';
+      if (n.fotos && n.fotos.length > 0) {
+        n.fotos.forEach(f => {
+          const src = `/uploads/${f.ruta_archivo}`;
+          photosHtml += `<img src='${src}' alt='${f.nombre_archivo}'/>`;
+        });
+      } else {
+        photosHtml += `<img src='${placeholderDataURL(320,240,"sin foto")}' alt='sin foto'/>`;
+      }
+      photosHtml += '</div>';
+
+      cont.innerHTML = `
+        <h3>${n.cantidad} ${n.tipo}(s) — ${n.edad}</h3>
+        <p><strong>Publicado:</strong> ${n.fecha_ingreso}</p>
+        <p><strong>Fecha entrega:</strong> ${n.fecha_entrega}</p>
+        <p><strong>Comuna / Sector:</strong> ${n.comuna} — ${n.sector || ""}</p>
+        <p><strong>Contacto:</strong> ${n.nombre} (${n.email})</p>
+        <p><strong>Descripción:</strong> ${n.descripcion || ""}</p>
+        <h4>Fotos</h4>
+        ${photosHtml}
+      `;
+
+      loadComentarios(n.id);
+      setupComentarioForm(n.id);
+    })
+    .catch(e => console.error("Error al cargar detalle:", e));
 }
-
-/********************************************************
- *  DETALLE (detalle.html)
- ********************************************************/
-function showDetail(id){
-  const n=sampleNotices.find(x=>x.id===id);
-  const cont=document.getElementById("detailContent");
-  if (!cont || !n) return;
-
-  let photosHtml='<div class="photo-grid">';
-  if(n.photos && n.photos.length>0){
-    n.photos.forEach((src,i)=>{
-      const large = src; // aquí podrías tener versiones grandes si quieres
-      photosHtml += `<img src='${src}' data-large='${large}' alt='foto ${i+1}'/>`;
-    });
-  } else {
-    photosHtml += `<img src='${placeholderDataURL(320,240,"sin foto")}' alt='sin foto'/>`;
-  }
-  photosHtml+='</div>';
-
-  cont.innerHTML=`
-    <h3>${n.cantidad} ${n.tipo}(s) — ${n.edad}</h3>
-    <p><strong>Publicado:</strong> ${n.pub}</p>
-    <p><strong>Fecha entrega:</strong> ${n.ent.replace("T"," ")}</p>
-    <p><strong>Comuna / Sector:</strong> ${n.comuna} — ${n.sector}</p>
-    <p><strong>Contacto:</strong> ${n.contact}</p>
-    <p><strong>Descripción:</strong> ${n.desc}</p>
-    <h4>Fotos</h4>
-    ${photosHtml}
-  `;
 
   // Click para ampliar fotos
   cont.querySelectorAll(".photo-grid img").forEach(img=>{
@@ -229,7 +207,7 @@ function showDetail(id){
       document.getElementById("closeLarge").addEventListener("click", hideOverlay);
     });
   });
-}
+
 /********************************************************
  *  ESTADÍSTICAS (estadisticas.html)
  ********************************************************/
@@ -307,4 +285,67 @@ function hideOverlay(){
     ov.style.display = 'none';
     ov.innerHTML = '';
   }
+}
+
+/********************************************************
+ *  COMENTARIOS (detalle.html)
+ ********************************************************/
+function loadComentarios(avisoId) {
+  fetch(`/api/comentarios/${avisoId}`)
+    .then(res => res.json())
+    .then(data => {
+      const cont = document.getElementById("comentarios-lista");
+      if (!cont) return;
+
+      if (data.length === 0) {
+        cont.innerHTML = "<p class='muted'>Aún no hay comentarios.</p>";
+        return;
+      }
+
+      cont.innerHTML = data.map(c => `
+        <div class="comentario">
+          <p><strong>${c.nombre}</strong> — <small>${c.fecha}</small></p>
+          <p>${c.texto}</p>
+        </div>
+      `).join("");
+    })
+    .catch(err => console.error("Error cargando comentarios:", err));
+}
+
+
+function setupComentarioForm(avisoId) {
+  const form = document.getElementById("form-comentario");
+  if (!form) return;
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre-comentario").value.trim();
+    const texto = document.getElementById("texto-comentario").value.trim();
+    const error = document.getElementById("error-comentario");
+    error.textContent = "";
+
+    if (nombre.length < 3 || texto.length < 5) {
+      error.textContent = "Por favor, completa correctamente los campos.";
+      return;
+    }
+
+    fetch(`/api/comentarios/agregar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ aviso_id: avisoId, nombre, texto })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        form.reset();
+        loadComentarios(avisoId);
+      } else {
+        error.textContent = data.error || "Error al guardar comentario.";
+      }
+    })
+    .catch(() => {
+      error.textContent = "Error de conexión con el servidor.";
+    });
+  });
 }

@@ -3,27 +3,25 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 
 from flask import (
-    Flask, render_template, request, redirect, url_for, flash, abort, send_from_directory
+    Flask, render_template, request, redirect, url_for, flash, abort, send_from_directory, jsonify
 )
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import joinedload
 
 # ------------------------------------------------------
 # CONFIGURACIÓN INICIAL
 # ------------------------------------------------------
 app = Flask(__name__)
-app.secret_key = "clave_secreta_flask"  # cámbiala para producción
+app.secret_key = "clave_secreta_flask" 
 
-# Ajusta la URI si tu host/puerto/credenciales difieren
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://cc5002:programacionweb@localhost/tarea2'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Carpeta para subir imágenes (asegúrate de que exista)
+# Carpeta para subir imágenes 
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-# Tamaños permitidos (por ejemplo): (opcional)
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 db = SQLAlchemy(app)
 
@@ -42,7 +40,7 @@ def parse_datetime_local(dt_str):
         return None
 
 # ------------------------------------------------------
-# MODELOS (mapeo exacto al script SQL que compartiste)
+# MODELOS 
 # ------------------------------------------------------
 class Region(db.Model):
     __tablename__ = 'region'
@@ -90,27 +88,27 @@ class ContactarPor(db.Model):
     identificador = db.Column(db.String(150), nullable=False)
     aviso_id = db.Column(db.Integer, db.ForeignKey('aviso_adopcion.id'), nullable=False)
 
+class Comentario(db.Model):
+    __tablename__ = 'comentario'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(80), nullable=False)
+    texto = db.Column(db.String(300), nullable=False)
+    fecha = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+    aviso_id = db.Column(db.Integer, db.ForeignKey('aviso_adopcion.id'), nullable=False)
+
+    aviso = db.relationship('AvisoAdopcion', backref='comentarios')
+
+
 # ------------------------------------------------------
 # RUTAS
 # ------------------------------------------------------
 
-# Helper: convertir string datetime ISO (HTML datetime-local) a datetime
-def parse_datetime_local(value):
-    if not value:
-        return None
-    try:
-        # formato 'YYYY-MM-DDTHH:MM' o 'YYYY-MM-DDTHH:MM:SS'
-        if len(value) == 16:
-            return datetime.strptime(value, "%Y-%m-%dT%H:%M")
-        return datetime.fromisoformat(value)
-    except Exception:
-        return None
 
 # Inicio: últimos 5 avisos ordenados por fecha_ingreso descendente
 @app.route('/')
 def inicio():
-    avisos = AvisoAdopcion.query.order_by(AvisoAdopcion.fecha_ingreso.desc()).limit(5).all()
-    # las plantillas deben usar: for aviso in avisos: aviso.fotos -> lista de Foto
+    avisos = AvisoAdopcion.query.options(joinedload(AvisoAdopcion.fotos)).order_by(AvisoAdopcion.fecha_ingreso.desc()).limit(5).all()
+    
     return render_template('inicio.html', avisos=avisos)
 
 # Listado: paginado (5 por página)
@@ -123,18 +121,15 @@ def listado():
     except ValueError:
         page = 1
     per_page = 5
-    pagination = AvisoAdopcion.query.order_by(AvisoAdopcion.fecha_ingreso.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    pagination = AvisoAdopcion.query.options(joinedload(AvisoAdopcion.fotos)).order_by(AvisoAdopcion.fecha_ingreso.desc()).paginate(page=page, per_page=per_page, error_out=False)
     avisos = pagination.items
     return render_template('listado.html', avisos=avisos, pagination=pagination, page=page, total_pages=pagination.pages)
 
 # Detalle: aviso + fotos + contactos
 @app.route('/detalle/<int:id>')
 def detalle(id):
-    aviso = AvisoAdopcion.query.get_or_404(id)
-    # aviso.fotos -> lista de Foto objects
+    aviso = AvisoAdopcion.query.options(joinedload(AvisoAdopcion.fotos)).get_or_404(id)
     return render_template('detalle.html', aviso=aviso)
-
-# Agregar aviso: GET muestra formulario; POST procesa y guarda en DB + archivos
 
 @app.route('/agregar', methods=['GET', 'POST'])
 def agregar_aviso():
@@ -205,11 +200,57 @@ def agregar_aviso():
 
     return render_template('agregar-aviso.html', regiones=regiones)
 
+#Comentarios
 
+@app.route('/api/comentarios/<int:aviso_id>', methods=['GET'])
+def api_get_comentarios(aviso_id):
+    """Devuelve los comentarios asociados a un aviso."""
+    comentarios = Comentario.query.filter_by(aviso_id=aviso_id).order_by(Comentario.fecha.desc()).all()
+    data = [
+        {
+            "id": c.id,
+            "nombre": c.nombre,
+            "texto": c.texto,
+            "fecha": c.fecha.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        for c in comentarios
+    ]
+    return jsonify(data)
+
+@app.route('/api/comentarios/agregar', methods=['POST'])
+def api_agregar_comentario():
+    """Agrega un nuevo comentario a un aviso existente."""
+    data = request.get_json(force=True)
+
+    nombre = data.get('nombre', '').strip()
+    texto = data.get('texto', '').strip()
+    aviso_id = data.get('aviso_id')
+
+    if not nombre or not texto or not aviso_id:
+        return jsonify({"ok": False, "error": "Faltan datos obligatorios."}), 400
+
+    aviso = AvisoAdopcion.query.get(aviso_id)
+    if not aviso:
+        return jsonify({"ok": False, "error": "El aviso especificado no existe."}), 404
+
+    try:
+        nuevo = Comentario(
+            nombre=nombre,
+            texto=texto,
+            fecha=datetime.utcnow(),
+            aviso_id=aviso_id
+        )
+        db.session.add(nuevo)
+        db.session.commit()
+        return jsonify({"ok": True, "id": nuevo.id, "fecha": nuevo.fecha.strftime("%Y-%m-%d %H:%M:%S")})
+    except Exception as e:
+        db.session.rollback()
+        print("Error al guardar comentario:", e)
+        return jsonify({"ok": False, "error": "Error interno del servidor."}), 500
+    
 # Estadísticas
 @app.route('/estadisticas')
 def estadisticas():
-    # Total de avisos por tipo
     tipo_counts = (
         db.session.query(AvisoAdopcion.tipo, db.func.count(AvisoAdopcion.id))
         .group_by(AvisoAdopcion.tipo)
@@ -217,8 +258,6 @@ def estadisticas():
     )
     tipos = [t[0] for t in tipo_counts]
     cantidades_tipos = [t[1] for t in tipo_counts]
-
-    # Total de avisos por región
     region_counts = (
         db.session.query(Region.nombre, db.func.count(AvisoAdopcion.id))
         .join(Comuna, Region.id == Comuna.region_id)
@@ -228,17 +267,17 @@ def estadisticas():
     )
     regiones = [r[0] for r in region_counts]
     cantidades_regiones = [r[1] for r in region_counts]
-
-    # Avisos por mes (últimos 6 meses)
     mes_counts = (
-        db.session.query(db.func.date_format(AvisoAdopcion.fecha_ingreso, '%Y-%m'), db.func.count(AvisoAdopcion.id))
+        db.session.query(
+            db.func.date_format(AvisoAdopcion.fecha_ingreso, '%Y-%m'),
+            db.func.count(AvisoAdopcion.id)
+        )
         .group_by(db.func.date_format(AvisoAdopcion.fecha_ingreso, '%Y-%m'))
         .order_by(db.func.date_format(AvisoAdopcion.fecha_ingreso, '%Y-%m'))
         .all()
     )
     meses = [m[0] for m in mes_counts]
     cantidades_meses = [m[1] for m in mes_counts]
-
     return render_template(
         'estadisticas.html',
         tipos=tipos,
@@ -259,4 +298,3 @@ def uploaded_file(filename):
 
 if __name__ == '__main__':
     app.run(debug=True)
-

@@ -30,10 +30,13 @@
             {% for aviso in avisos %}
             <tr>
               <td>
-                {% if aviso.foto %}
-                  <img src="{{ url_for('static', filename='uploads/' + aviso.fotos[0].ruta_archivo) }}">
+                {% if aviso.fotos and aviso.fotos|length > 0 %}
+                  <img src="{{ url_for('uploaded_file', filename=aviso.fotos[0].ruta_archivo) }}" 
+                      alt="Foto mascota" style="width:100px; height:auto; border-radius:6px;">
                 {% else %}
-                  <img src="{{ url_for('static', filename='img/no-image.png') }}" alt="sin imagen" width="80">
+                  <div style="width:100px; height:100px; background:#eee; display:flex; align-items:center; justify-content:center; color:#666;">
+                    Sin imagen
+                  </div>
                 {% endif %}
               </td>
               <td>{{ aviso.tipo }}</td>

@@ -17,50 +17,38 @@
       <h2>Estadísticas</h2>
       <p class="muted">Datos de ejemplo sobre los avisos registrados.</p>
 
-        <div class="card" style="margin-bottom:20px;">
+        <div class="card" style="margin-bottom:5%;">
         <h4>Avisos por día</h4>
-        <canvas id="lineChart" style="width:100%; height:300px;"></canvas>
+        <canvas id="lineChart" style="width:50%; height:50%;"></canvas>
         </div>
 
-        <div class="card" style="margin-bottom:20px;">
+        <div class="card" style="margin-bottom:5%px;">
         <h4>Por tipo (gato vs perro)</h4>
-        <canvas id="pieChart" style="width:100%; height:300px;"></canvas>
+        <canvas id="pieChart" style="width:50%; height:50%;"></canvas>
         </div>
 
         <div class="card">
         <h4>Avisos por mes (gato/perro)</h4>
-        <canvas id="barChart" style="width:100%; height:300px;"></canvas>
+        <canvas id="barChart" style="width:50%; height:50%;"></canvas>
         </div>
     </section>
   </main>
 
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+>
   <script>
-    // Ajusta los canvas al tamaño de su contenedor
-    function resizeCanvasToDisplaySize(canvas) {
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight;
-        if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-        }
-    }
+        // Los datos llegan directamente desde Flask
+        const tipos = {{ tipos|tojson }};
+        const cantidades_tipos = {{ cantidades_tipos|tojson }};
+        const regiones = {{ regiones|tojson }};
+        const cantidades_regiones = {{ cantidades_regiones|tojson }};
+        const meses = {{ meses|tojson }};
+        const cantidades_meses = {{ cantidades_meses|tojson }};
 
-    function drawChartsResponsive() {
-        const lineCanvas = document.getElementById("lineChart");
-        const pieCanvas = document.getElementById("pieChart");
-        const barCanvas = document.getElementById("barChart");
-
-        [lineCanvas, pieCanvas, barCanvas].forEach(resizeCanvasToDisplaySize);
-
-        drawAllCharts();
-    }
-
-        // Dibujar al cargar
-        window.addEventListener("load", drawChartsResponsive);
-
-        // Redibujar al cambiar el tamaño de la ventana
-        window.addEventListener("resize", drawChartsResponsive);
-     </script>
+        // Llama a las funciones de app.js
+        drawPie(document.getElementById('pieChart'), cantidades_tipos, tipos);
+        drawBar(document.getElementById('barChart'), regiones, cantidades_regiones, []);
+        drawLine(document.getElementById('lineChart'), meses, cantidades_meses);
+  </script>
 </body>
 </html>
