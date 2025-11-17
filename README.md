@@ -9,7 +9,7 @@ Fue desarrollado utilizando HTML5, CSS y JavaScript.
 
 ```
 
-desarrollo_web_Victor_Peters/
+desarrollo_web_Victor_Peters/flask-app
 │
 ├── app.py                        ← Archivo principal de Flask
 │
@@ -83,5 +83,45 @@ desarrollo_web_Victor_Peters/
 ## Notas
 
 - Las imágenes se manejan como un arreglo en cada aviso.  
-- Los datos iniciales son ficticios y se encuentran en `app.js` (`sampleNotices`).  
+
+# Prototipo de Valoración de Publicaciones
+
+Este es un prototipo de una página web que permite evaluar las publicaciones de la página construida con flask, en esta nueva página cuenta con una única vista principal llamada listado.html, en la cual se presentan publicaciones guardadas en la base de datos y se pueden evaluar con una clificación de 1 a 7, mostrando la calificación promedio de cada aviso.
+
+# Estructura Aplicación con Spring Boot
+
+desarrollo_web_Victor_Peters/spring-app
+└──src/main/
+   ├──java/tarea_4/tarea_4/ 
+   │   ├── controllers/
+   │   │   ├──AvisoController.java
+   │   │   └──NotaController.java
+   │   ├── models/
+   │   │   ├──AvisoAdopcion.java
+   │   │   ├──Comentario.java
+   │   │   ├──Comuna.java
+   │   │   ├──Foto.java
+   │   │   ├──Nota.java
+   │   │   └──Region.java
+   │   ├── services/NotaService.java
+   │   ├──  repository/
+   │   │   ├──AvisoRepository.java
+   │   │   └──notaRepository.java
+   │   └── Tarea4Aplication.java
+   └── resources/
+       ├── templates/listado.html
+       ├── static/
+       │    ├── css/style.css
+       │    └── js/evaluar.js
+       └── application.properties
+
+# Tecnologías utilizadas
+- Java 25
+- Spring Data JPA
+- Thymeleaf
+- Spring Web
+- MySQL Driver
+- Validation
+- Spring Boot DevTools
+
 

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Listado de avisos - Evaluar</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+  <header>
+    <h1>Listado de avisos</h1>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Avisos</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha publicación</th>
+            <th>Sector</th>
+            <th>Cantidad</th>
+            <th>Tipo</th>
+            <th>Edad</th>
+            <th>Comuna</th>
+            <th>Nota (promedio)</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="aviso : ${avisos}">
+            <td th:text="${aviso.id}">1</td>
+
+            <!-- Formateo seguro de LocalDateTime usando DateTimeFormatter -->
+            <td th:text="${aviso.fechaIngreso != null ? aviso.fechaIngreso.format(T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm')) : '-'}">
+              2025-10-01 12:00
+            </td>
+
+            <td th:text="${aviso.sector != null ? aviso.sector : '-'}">Sector</td>
+            <td th:text="${aviso.cantidad}">1</td>
+            <td th:text="${aviso.tipo}">gato</td>
+
+            <!-- Edad y unidad -->
+            <td th:text="${aviso.edad != null ? aviso.edad + ' ' + (aviso.unidadMedida == 'm' ? 'meses' : 'años') : '-'}">
+              2 meses
+            </td>
+
+            <td th:text="${aviso.comuna != null ? aviso.comuna.nombre : '-'}">Comuna</td>
+
+            <td>
+              <span th:id="'prom-' + ${aviso.id}"
+                    th:text="${promedios[aviso.id] != null ? T(java.lang.String).format('%.1f', promedios[aviso.id]) : '-'}">-</span>
+              <small th:text="${totales[aviso.id] != null ? '(' + totales[aviso.id] + ')' : ''}"></small>
+            </td>
+
+
+            <td>
+              <button type="button" class="evaluate-btn" th:attr="data-id=${aviso.id}">Evaluar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Mensaje en caso de lista vacía -->
+      <div th:if="${avisos == null or #lists.isEmpty(avisos)}" class="muted" style="margin-top:12px;">
+        No hay avisos registrados aún.
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal root -->
+  <div id="modal-root" style="display:none;"></div>
+
+  <script th:src="@{/js/evaluar.js}"></script>
+</body>
+</html>

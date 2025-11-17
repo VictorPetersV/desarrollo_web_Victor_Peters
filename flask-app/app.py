@@ -165,7 +165,7 @@ def agregar_aviso():
             )
 
             db.session.add(aviso)
-            db.session.flush()  # obtiene aviso.id antes del commit
+            db.session.flush()  
 
             # ---- Subida de fotos ----
             files = request.files.getlist('photos')

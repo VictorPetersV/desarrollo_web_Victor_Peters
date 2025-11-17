@@ -75,14 +75,43 @@ function prefillDate(){
 }
 
 // Manejo de input adicional según canal de contacto
-function setupContactChannel(){
-  const sel=document.getElementById("contactChannel");
-  const wrap=document.getElementById("channelInfoWrap");
-  if (!sel || !wrap) return;
-  sel.addEventListener("change",()=>{
-    wrap.style.display = sel.value ? "block" : "none";
+function setupContactOptions() {
+  const container = document.getElementById("contactos-container");
+  const addBtn = document.getElementById("addContactBtn");
+
+  if (!container || !addBtn) return;
+
+  addBtn.addEventListener("click", () => {
+    const items = container.querySelectorAll(".contacto-item");
+    if (items.length >= 5) {
+      alert("No puede agregar más de 5 opciones de contacto.");
+      return;
+    }
+
+    const newItem = document.createElement("div");
+    newItem.className = "contacto-item";
+    newItem.innerHTML = `
+      <select name="contactChannel[]" class="contactChannel">
+        <option value="">-- Seleccione canal --</option>
+        <option value="email">Correo electrónico</option>
+        <option value="telefono">Teléfono</option>
+        <option value="instagram">Instagram</option>
+        <option value="facebook">Facebook</option>
+        <option value="otra">Otra</option>
+      </select>
+      <input type="text" name="channelInfo[]" class="channelInfo" placeholder="Ej: usuario@correo.cl o @nombre" />
+      <button type="button" class="remove-contact">✖</button>
+    `;
+
+    container.appendChild(newItem);
+
+    // Botón para eliminar una opción
+    newItem.querySelector(".remove-contact").addEventListener("click", () => {
+      newItem.remove();
+    });
   });
 }
+
 
 // Manejo de fotos (máx 5)
 function setupPhotoInputs(){
